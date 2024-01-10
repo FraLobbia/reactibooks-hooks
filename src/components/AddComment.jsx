@@ -1,34 +1,50 @@
-import { Component } from "react";
+import { useEffect, useState } from "react";
 import { Button, Form } from "react-bootstrap";
 import { token } from "../data/token";
-class AddComment extends Component {
-	state = {
-		comment: {
-			comment: "",
-			rate: 1,
-			elementId: this.props.asin,
-		},
-	};
+const AddComment = (props) => {
+	// state = {
+	// 	comment: {
+	// 		comment: "",
+	// 		rate: 1,
+	// 		elementId: this.props.asin,
+	// 	},
+	// };
 
-	componentDidUpdate(prevProps) {
-		if (prevProps.asin !== this.props.asin) {
-			this.setState({
+	const [comment, setComment] = useState({
+		comment: "",
+		rate: 1,
+		elementId: props.asin,
+	});
+
+	useEffect(() => {
+		if (comment.elementId !== props.asin) {
+			setComment({
 				comment: {
-					...this.state.comment,
-					elementId: this.props.asin,
+					...comment,
+					elementId: props.asin,
 				},
 			});
 		}
-	}
+	});
+	// componentDidUpdate(prevProps) {
+	// 	if (prevProps.asin !== this.props.asin) {
+	// 		this.setState({
+	// 			comment: {
+	// 				... comment,
+	// 				elementId: this.props.asin,
+	// 			},
+	// 		});
+	// 	}
+	// }
 
-	sendComment = async (e) => {
+	const sendComment = async (e) => {
 		e.preventDefault();
 		try {
 			let response = await fetch(
 				"https://striveschool-api.herokuapp.com/api/comments",
 				{
 					method: "POST",
-					body: JSON.stringify(this.state.comment),
+					body: JSON.stringify(comment),
 					headers: {
 						"Content-type": "application/json",
 						Authorization: token,
@@ -37,11 +53,11 @@ class AddComment extends Component {
 			);
 			if (response.ok) {
 				alert("Recensione inviata!");
-				this.setState({
+				setComment({
 					comment: {
 						comment: "",
 						rate: 1,
-						elementId: this.props.asin,
+						elementId: props.asin,
 					},
 				});
 			} else {
@@ -52,57 +68,55 @@ class AddComment extends Component {
 		}
 	};
 
-	render() {
-		return (
-			<div className="my-3">
-				<Form onSubmit={this.sendComment}>
-					<Form.Group className="mb-2">
-						<Form.Label>Recensione</Form.Label>
-						<Form.Control
-							type="text"
-							placeholder="Inserisci qui il testo"
-							value={this.state.comment.comment}
-							onChange={(e) =>
-								this.setState({
-									comment: {
-										...this.state.comment,
-										comment: e.target.value,
-									},
-								})
-							}
-						/>
-					</Form.Group>
-					<Form.Group className="mb-2">
-						<Form.Label>Valutazione</Form.Label>
-						<Form.Control
-							as="select"
-							value={this.state.comment.rate}
-							onChange={(e) =>
-								this.setState({
-									comment: {
-										...this.state.comment,
-										rate: e.target.value,
-									},
-								})
-							}
-						>
-							<option>1</option>
-							<option>2</option>
-							<option>3</option>
-							<option>4</option>
-							<option>5</option>
-						</Form.Control>
-					</Form.Group>
-					<Button
-						variant="primary"
-						type="submit"
+	return (
+		<div className="my-3">
+			<Form onSubmit={sendComment}>
+				<Form.Group className="mb-2">
+					<Form.Label>Recensione</Form.Label>
+					<Form.Control
+						type="text"
+						placeholder="Inserisci qui il testo"
+						value={comment.comment}
+						onChange={(e) =>
+							setComment({
+								comment: {
+									...comment,
+									comment: e.target.value,
+								},
+							})
+						}
+					/>
+				</Form.Group>
+				<Form.Group className="mb-2">
+					<Form.Label>Valutazione</Form.Label>
+					<Form.Control
+						as="select"
+						value={comment.rate}
+						onChange={(e) =>
+							setComment({
+								comment: {
+									...comment,
+									rate: e.target.value,
+								},
+							})
+						}
 					>
-						Invia
-					</Button>
-				</Form>
-			</div>
-		);
-	}
-}
+						<option>1</option>
+						<option>2</option>
+						<option>3</option>
+						<option>4</option>
+						<option>5</option>
+					</Form.Control>
+				</Form.Group>
+				<Button
+					variant="primary"
+					type="submit"
+				>
+					Invia
+				</Button>
+			</Form>
+		</div>
+	);
+};
 
 export default AddComment;
